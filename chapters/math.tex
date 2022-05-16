@@ -1,0 +1,474 @@
+\chapter{数学}
+
+\def \codedir{./code/math/}
+
+\section{欧几里得算法}
+\inputcode{\codecpp}{\codedir/gcd.cpp}
+
+
+\section{乘法逆元}
+\inputcode{\codecpp}{\codedir/mul_inv.cpp}
+
+
+\section{中国剩余定理}
+\inputcode{\codecpp}{\codedir/crt.cpp}
+
+
+\section{解方程$a^x \equiv b \pmod p$}
+\inputcode{\codecpp}{\codedir/bsgs.cpp}
+
+
+\section{大数乘法转化为对数加法}
+
+UVa-10883: 计算
+\begin{gather*}
+    \sum_{i=1}^{n-1} \frac{\binom{n-1}{i} \cdot a_i}{2^{n-1}}.
+\end{gather*}
+
+题解: 将每项转化为
+\begin{gather*}
+    \log(n-1)! + \log|a_i| - \log(n-1-i)! - \log i! - (n-1)\log 2.
+\end{gather*}
+
+\inputcode{\codecpp}{\codedir/log_sum.cpp}
+
+
+\section{Berlekamp-Massey Algorithm}
+\inputcode{\codecpp}{\codedir/berlekamp_massey.cpp}
+
+
+\section{Meissel-Lehmer-Method}
+\inputcode{\codecpp}{\codedir/meissel_lehmer_method.cpp}
+
+
+\section{矩阵}
+\inputcode{\codecpp}{\codedir/matrix.cpp}
+
+
+\section{高斯消元}
+\inputcode{\codecpp}{\codedir/gaussian_elimination.cpp}
+
+
+\section{计算$a \cdot b \bmod c$}
+\inputcode{\codecpp}{\codedir/LL_mod.cpp}
+
+
+\section{Miller Rabin素性检测\& Pollard-Rho大数分解}
+\inputcode{\codecpp}{\codedir/miller_rabin.cpp}
+
+
+\section{傅立叶变换}
+
+
+\subsection{快速傅里叶变换(FFT)}
+DFT正变换公式:
+\begin{gather*}
+    X_k = \sum_{n=0}^{N-1} x_n e^{-\frac{2 \pi i}{N} nk}, \quad k = 0, 1, \cdots N-1.
+\end{gather*}
+DFT逆变换公式:
+\begin{gather*}
+    x_n = \frac{1}{N} \sum_{k=0}^{N-1} X_k e^{\frac{2 \pi i}{N} kn}, \quad n = 0,1, \cdots, N-1.
+\end{gather*}
+提高精度的方法: (1)预处理单位根; (2)缩短多项式⻓度; (3)不要使用2次DFT科技(不过一般影响不大).
+
+\inputcode{\codecpp}{\codedir/fft.cpp}
+
+
+\subsection{2次DFT变换卷积}
+求实多项式$A(x)$和$B(x)$的卷积时, 我们可以进行如下构造:
+\begin{gather*}
+    P(x) = A(x) + i B(x), \\
+    Q(x) = A(x) - i B(x).
+\end{gather*}
+
+设$F_p[k] = P(\omega^k)$, $F_q[k]=Q(\omega^k)$, 其中$\omega$是$n$次单位根, 那么可以证明:
+\begin{align*}
+    & F_q[k] = \mathrm{conj}(F_p[L-k]), \quad k>0, \\
+    & F_q[0] = \mathrm{conj}(F_p[0]).
+\end{align*}
+进一步可得
+\begin{gather*}
+    DFT(A[k]) = \frac{1}{2} (F_p[k] + F_q[k]), \\
+    DFT(B[k]) = \frac{i}{2} (F_p[k] - F_q[k]).
+\end{gather*}
+基于以上分析, 我们只要进行一次DFT变换和一次IDFT变换即可求出卷积.
+该方法的主要问题在于精度相对较低, 在进行多次实数域卷积后(例如实数分治FFT)会积累很大的误差, 因此一般只在计算整数多项式时使用该方法.
+
+\inputcode{\codecpp}{\codedir/fft_fast.cpp}
+
+
+\subsection{FFT任意数取模}
+考虑计算$A(x) \cdot B(x) \bmod M$.
+由于$M$可能很大(例如取$M = 10^9 + 7$), 若先进行卷积后再取模, 中间变量就有可能达到$M^2 L$的数量级, 超出64位整数范围.
+此时即便使用$128$位整数,也可能产生比较大的误差.
+
+我们考虑通过其他方法计算上式.
+设$M_0 = \lceil \sqrt{M} \rceil$, 我们将两个整系数多项式的系数分别表示成$c = k M_0 + b$的形式, 其中$b = c \bmod M_0$, 那么便可以得到关于$k$和$b$的共计$4$个新的多项式.
+对这4个多项式分别两两进行卷积后再乘上相应系数相加后取模, 就可以得到$A(x) \cdot B(x) \bmod M$的结果.
+
+在这种情况下, 卷积计算时的中间变量被控制在$M L$数量级以内, 不会超出⻓整型变量范围.
+通过前面所述的优化方法可以仅使用$4$次FFT计算完成多项式取模过程.
+
+\inputcode{\codecpp}{\codedir/fft_conv_mod.cpp}
+
+
+\subsection{多项式求逆}
+\textbf{问题:}
+给定多项式$A(x)$, 求多项式$B(x)$使得$A(x) \cdot B(x) \equiv 1 \pmod{x^n}$.
+
+\textbf{题解:}
+假设我们已经计算出多项式$B' (x)$使得$A(x) * B'(x) \equiv 1 \pmod{x^{\lceil n/2 \rceil}}$.
+由于$A(x) \cdot B(x) \equiv 1 \pmod{x^{\lceil n/2 \rceil}}$, 因此有$B(x) − B'(x) \equiv 0 \pmod{x^{\lceil n/2 \rceil}}$, 则可得
+\begin{gather*}
+    (B(x) − B'(x))^2 \equiv B(x)^2 − 2B(x)B'(x) + B'(x)^2 \equiv 0 \pmod{x^n}.
+\end{gather*}
+% 则易证 (B(x) − B′(x))2 ≡ (B(x)) 2 − 2B(x)B′(x) + (B′(x))2 ≡ 0 (mod x n )
+对上式的等式两边同乘$A(x)$并移项可得
+\begin{gather*}
+    B(x) = 2B'(x) − A(x) \cdot B'(x)^2.
+\end{gather*}
+因此, 我们可以通过上式递归求解$B(x)$, 由主定理知递归求解的总时间复杂度为$O(n \log n)$.
+
+\inputcode{\codecpp}{\codedir/fft_poly_inv.cpp}
+
+
+\subsection{快速数论变换(NTT)}
+DFT正变换公式:
+\begin{gather*}
+    X_k = \sum_{n=0}^{N-1} x_n g^{nk} \pmod{P}, \quad k = 0,1,\cdots,N-1.
+\end{gather*}
+
+DFT逆变换公式:
+\begin{gather*}
+    x_n = \frac{1}{N} \sum_{k=0}^{N-1} X_k g^{-kn} \pmod{P}, \quad n = 0,1,\cdots,N-1.
+\end{gather*}
+
+其中$P$为素数, $g$为模$P$的原根, 且$N$必须是$P−1$的因子.
+由于$N$经常是$2$的幂, 故可构造形如$P = c \cdot 2^k + 1$的素数.
+
+\inputcode{\codecpp}{\codedir/ntt.cpp}
+
+
+\subsection{三模数NTT的CRT模板}
+\inputcode{\codecpp}{\codedir/ntt_mod.cpp}
+
+
+\subsection{快速沃尔什变换(FWT)}
+Fast Walsh-Hadmard Transform用于解决如下卷积问题:
+\begin{gather*}
+    C_i = \sum_{j \oplus k = i} A_j \cdot B_k,
+\end{gather*}
+其中$\oplus$可以是任意二元逻辑运算符.
+我们可以考虑将多项式$A$拆分成$A=(A_0,A_1)$来进行变换.
+
+\textbf{XOR.}
+当$\oplus$为异或运算符时, 有如下变换:
+\begin{gather*}
+    tf(A) = (tf(A_0)+tf(A_1), tf(A_0)-tf(A_1)), \\
+    utf(A) = (utf(\frac{1}{2}(A_0+A_1)), utf(\frac{1}{2}(A_0-A_1))).
+\end{gather*}
+
+\textbf{AND.}
+当$\oplus$为与运算符时, 有如下变换:
+\begin{gather*}
+    tf(A) = (tf(A_0)+tf(A_1), tf(A_1)), \\
+    utf(A) = (utf(A_0)-utf(A_1), utf(A_1)).
+\end{gather*}
+
+\textbf{OR.}
+当$\oplus$为或运算符时, 有如下变换:
+\begin{gather*}
+    tf(A) = (tf(A_0), tf(A_1)+tf(A_0)), \\
+    utf(A) = (utf(A_0), utf(A_1)-utf(A_0)).
+\end{gather*}
+
+\textbf{XNOR / NAND / NOR.}
+当$\oplus$为异或非运算符 / 与非运算符 / 或非运算符时,我们可以将$C$直接用异或运算 / 与运算 / 或运算的方法求出来, 然后将互反的两位交换即可.
+
+以下给出OR运算的实现代码:
+\inputcode{\codecpp}{\codedir/fwt.cpp}
+
+
+\section{SG定理}
+
+\subsection{基本概念}
+对于一个Nim博弈状态$A$, $SG[A]$表示它的赢面的``等级'', $SG [A] = 0$表示当前状态必输.
+若一个Nim博弈局面由$A_1, A_2, \cdots, A_n$共计$n$个独立状态组成, 那该局面的SG函数为:
+\begin{gather*}
+    SG[A_1,A_2,\cdots,A_n] = SG[A_1] \oplus SG[A_2] \oplus \cdots \oplus SG[A_n],
+\end{gather*}
+其中$\oplus$指逻辑异或运算$XOR$.
+
+\inputcode{\codecpp}{\codedir/sg.cpp}
+
+
+\subsection{树上删边SG游戏}
+\begin{itemize}
+\item
+叶子节点的SG值为$0$.
+
+\item
+中间节点的SG为:
+$SG[A] = (SG[son_1] + 1) \oplus (SG[son_2] + 1) \oplus \cdots \oplus (SG[son_k] + 1)$.
+\end{itemize}
+
+
+\section{线性筛法}
+\inputcode{\codecpp}{\codedir/prime_sieve.cpp}
+
+
+\section{欧拉函数}
+\inputcode{\codecpp}{\codedir/euler_function.cpp}
+
+
+\section{莫比乌斯函数}
+\inputcode{\codecpp}{\codedir/mobius_function.cpp}
+
+
+\section{拉格朗日插值}
+给出$n$个不同的点$(x_0,y_0), \cdots, (x_{n−1}, y_{n−1})$, 其拉格朗日插值公式为:
+$L(x) = \sum_{j=0}^{n-1}y_j \ell_j(x)$.
+其中, $\ell_j(x) = \prod_{i=0,i\ne j}^{n-1} \frac{x-x_i}{x_j-x_i}$为插值基函数.
+
+一般情况下, 给出$n$个不同的点, 可以在$O(n^2)$的时间复杂度内插出一个$n−1$次多项式在给定点的值.
+然而, 若能快速预处理出多项式$f$在$x = 1, \cdot, n$的值$f(1), \cdots, f(n)$, 则可以通过以下模板在$O(n)$的时间复杂度内快速求出$f$在给定点的值.
+\inputcode{\codecpp}{\codedir/lagrange_interpolation.cpp}
+
+
+\section{Java大数开方}
+牛顿迭代法求$f(x)$零点公式: $x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}$.
+
+对应到求$\sqrt[k]{a}$的递推式为: $x_{n+1} = x_n - \frac{x^k_n - a}{k x^{k-1}_n} = \frac{k-1}{k}x_n + \frac{a}{k x^{k-1}_n}$.
+
+以下代码用于求$\lfloor \sqrt[m]{n} \rfloor$, 其中$m\geq 1$, $n\geq 0$.
+\inputcode{\codejava}{\codedir/sqrt.java}
+
+
+\section{数学相关结论}
+
+\subsection{Polya计数}
+
+\textbf{Burnside引理.}
+设$G$是一个作用在集合$X$上的有限群.
+对每个$g \in G$, 令$x^g$表示$X$中在$g$作用下的不动元素.
+则有如下公式:
+\begin{gather*}
+    |X/G|={\frac{1}{|G|}}\sum_{{g\in G}}{|X^{g}|}.
+\end{gather*}
+以上公式说明等价类个数等于每个置换不动点的均值.
+
+\textbf{Polya定理.}
+对于含$n$个对象的置换群$G$, 用$t$种颜色着色的不同方案数为:
+\begin{gather*}
+    l={\frac {1}{|G|}}\sum _{{a_g\in G}}t^{{c(a_{g})}},
+\end{gather*}
+其中$G = \{a_1, a_2, \cdots, a_n\}$, $c(a_g)$为置换$a_g$的循环指标数目.
+
+
+\subsection{皮克定理}
+给定顶点座标均是整点(或正方形格子点)的简单多边形, 设其面积为$A$, 内部格点(整点)数目为$a$, 边
+上格点数目为$b$, 则有关系式: $A = a + \frac{b}{2} - 1$.
+
+证明: 数学归纳法. 特殊形式: 三角形.
+
+
+\subsection{勾股数}
+可以用如下的结论找出所有\textbf{素勾股数}.
+设$n < m$, $n$, $m$均是正整数, 令:
+\begin{gather*}
+    \left\{ \begin{array}{l}
+        a = m^2 - n^2 \\
+        b = 2mn \\
+        c = m^2 + n^2
+    \end{array} \right. .
+\end{gather*}
+若$n$与$m$互素, 且$n$和$m$之中有(且仅有)一个是偶数, 那么$(a,b,c)$就是素勾股数.
+
+
+\subsection{原根}
+若$a$为模$m$乘法群的原根, 则事实上该模$m$乘法群是由$a$生成的循环群.
+
+模$m$乘法群有原根的\textbf{充要条件}是$m = 2, 4, p^n , 2p^n$, 其中$p$是奇素数(即非$2$), $n$是任意正整数.
+
+
+\subsection{Lucas定理}
+对于非负整数$n$和$m$和素数$p$, 同余式$\binom{n}{m} \equiv \prod_{i=0}^k \binom{n_i}{m_i} \pmod{p}$成立, 其中
+\begin{align*}
+    & n = n_k p^k + n_{k-1} p^{k-1} + \cdots + n_1 p^1 + n_0 p^0, \\
+    & m = m_k p^k + m_{k-1} p^{k-1} + \cdots + m_1 p^1 + m_0 p^0.
+\end{align*}
+注意当$m_i > n_i$时, $\binom{n_i}{m_i} = 0$.
+
+
+\subsection{逆矩阵与伴随矩阵}
+若$A$可逆, 则$A^{-1} = \frac{A^*}{|A|}$, 其中$A^*$是$A$的伴随矩阵, 即$A$的代数余子式构成矩阵的\textbf{转置}.
+
+
+\subsection{Freivalds算法验算矩阵乘法结果}
+设有三个$n$阶矩阵$A$, $B$, $C$, 要求验证$AB$是否等于$C$.
+
+我们可以随机化一个$n$维$01$向量$v$, 则有结论: $P(A \cdot (Bv) = Cv, AB \ne C) \leq \frac{1}{2}$.
+
+因此我们多次随机生成向量$v$并进行上述判断, 就可以显著提高判断正确的概率, 而判断所需时间复杂度由$O(n^3)$变为$O(n^2)$.
+
+
+\subsection{欧拉函数相关公式}
+\begin{align*}
+    & \phi(n) = n\prod _{p|n}(1-{\frac {1}{p}}), \\
+    & \sum_{{d|n}}\phi(d) = n \quad \Rightarrow \quad \phi(n) = n-\sum_{d|n, \ d<n}{\phi(d)}, \quad \text{\textbf{(常用于杜教筛)}}\\
+    & S(n) = \sum_{i=1}^{n}{\phi(i)} = \frac{n(n+1)}{2}-\sum_{i=2}^{n}S\left( \left\lfloor \frac{n}{i} \right\rfloor \right), \\
+    & \sum_{i=1}^{n}{i[(i,n)=1]} = \frac{1}{2}( [n=1]+n\phi(n)).
+\end{align*}
+
+
+\subsection{莫比乌斯函数相关公式}
+\begin{align*}
+    & \sum_{d \mid n} \mu(d) = [n=1] \quad \Rightarrow \quad \mu(n) = [n=1] - \sum_{d|n, \ d<n}{\mu(d)}, \quad \text{\textbf{(常用于杜教筛)}}\\
+    & M(n) = \sum_{i=1}^{n}{\mu(i)} =  1 - \sum_{i=2}^{n}{M \left( \left\lfloor \frac{n}{i} \right\rfloor \right) }, \\
+    & F(n) = \sum_{d|n}{f(d)} \quad \Rightarrow \quad f(n) = \sum_{d|n}{\mu(d)F\left(\frac{n}{d}\right)}, \\
+    & F(n) = \sum_{n|d}{f(d)} \quad \Rightarrow \quad f(n) = \sum_{n|d}{\mu \left(\frac{d}{n}\right)F(d)}.
+\end{align*}
+
+
+\subsection{欧拉降幂公式}
+\begin{gather*}
+    A^B \bmod C = A^{ (B \bmod \phi(c) + \phi(c)) } \bmod C,
+\end{gather*}
+其中, $B \geq \phi(c)$, $\phi$是欧拉函数.
+
+
+\subsection{第二类斯特林数相关公式}
+$S(n,k)$表示将$n$个不同的物品划分成$k$个(不可分辨)的集合的方案数.
+则有如下公式:
+\begin{align*}
+    & S(n,n) = S(n,1) = 1, \\
+    & S(n,k) = S(n-1,k-1) + k \cdot S(n-1,k) = \frac{1}{k!} \sum_{j=1}^k (-1)^{k-j} \binom{k}{j} j^n, \\
+    & S(n,n-1) = \binom{n}{2} = \frac{n(n-1)}{2}, \\
+    & S(n,2) = 2^{n-1} - 1.
+\end{align*}
+
+
+\subsection{杜教筛}
+\textbf{问题.}
+定义两个数论函数$f(x)$, $g(x)$的Dirichlet卷积为:
+$(f * g)(n) = \sum_{d|n} f(d) g\left( n/d \right)$.
+
+设$f(n)$为一数论函数,现需计算:
+\begin{gather*}
+    S(n) = \sum_{i=1}^n f(i).
+\end{gather*}
+
+\textbf{题解.}
+通过构造$S(n)$关于$S(\lfloor n/i \rfloor)$的递推式, 利用预处理和Hash技术来加速求和过程.
+
+例如, 计算Mertens函数$M(n)$可利用如下公式加速计算过程:
+\begin{gather*}
+    M(n) = \sum_{i=1}^n \mu(i) = 1 - \sum_{i=2}^n M\left(\left\lfloor \frac{n}{i} \right\rfloor\right).
+\end{gather*}
+通常会使用$\phi(x)$,$\mu(x)$, $1$等数论函数来构造Dirichlet卷积, 使得$(f * g)(n) = \epsilon(n)$或其他特殊的值或函数, 然后再构造类似于$\sum_{i=1}^n \epsilon(i)$这样的式子来求出杜教筛需要的递推式.
+
+
+\subsection{(第一)伯努利数与等幂求和}
+伯努利数记为$B_i (i=0,1\cdot)$, 其中$B_0=1$, $B_1=\mp \frac{1}{2}$.
+我们称$B_1 = -\frac{1}{2}$的伯努利数为\textbf{第一伯努利数}.
+以下出现的$B_i$均指第一伯努利数.
+\begin{itemize}
+\item
+伯努利数的母函数定义式:
+\begin{gather*}
+    \frac{x}{e^x - 1} = \sum_{n=0}^\infty B_n \frac{x^n}{n!}.
+\end{gather*}
+
+\item
+伯努利数的计算方法: 通过如下公式递归计算:
+\begin{gather*}
+    \sum_{i=0}^n \binom{n+1}{i} B_i = 0.
+\end{gather*}
+
+\item
+等幂求和公式:
+\begin{align*}
+    & \sum_{i=1}^{n}{i} = \frac{n(n+1)}{2}, \\
+    & \sum_{i=1}^{n}{i^2} = \frac{n(n+1)(2n+1)}{6}, \\
+    & \sum_{i=1}^{n}{i^3} = \frac{n^{2}(n+1)^{2}}{4} = \left(\sum_{i=1}^{n}{i} \right)^{2}, \\
+    & S_m(n) = \sum_{i=1}^n i^m = \frac{1}{m+1} \sum_{i=0}^m \binom{m+1}{i} B_i (n+1)^{m+1-i}.
+\end{align*}
+
+\item
+拉格朗日插值与等幂求和: 通过归纳法可以证明, $S_m(n)$是一个关于$n$的$m+1$次多项式.
+因此可以先暴力预处理出$S_m(n)$在$1, \cdots, (m+2)$处的值, 然后再利用线性插值模板即可在$O(m)$的复杂度内针对任意$n$计算$S_m(n)$.
+\end{itemize}
+
+
+\subsection{卡特兰数}
+卡特兰数通项公式为: $C_n = \frac{1}{n+1} \binom{2n}{n}$, $(n \geq 0)$.
+
+递推关系: $C_0=1$, $C_{n+1} = \sum_{i=0}^n C_i C_{n-i}$.
+
+组合意义:
+\begin{itemize}
+\item
+$C_n$表示包含$n$对括号的合法括号匹配序列的个数 (证明思路: 考虑$\binom{2n}{n} - \binom{2n}{n+1} = \frac{1}{n+1} \binom{2n}{n} = C_n$).
+
+\item
+$C_n$表示由$n$个节点组成的不同构二叉树的方案数.
+
+\item
+$C_n$表示由$2n+1$个节点组成的不同构满二叉树(\textbf{指不存在只含一个孩子的节点的树})的方案数.
+
+\item
+$C_n$表示通过连接顶点将有$n+2$条边的凸多边形分成三角形的方案数(每个顶点是本质不同的).
+\end{itemize}
+
+
+\subsection{没什么卵用的组合公式}
+\begin{align*}
+    & \binom{k}{k} + \binom{k+1}{k} + \cdots + \binom{n}{k} = \binom{n+1}{k+1}, \\
+    & A_n = \sum_{i=0}^n \binom{n}{i} B_i \quad \Leftrightarrow \quad B_n = \sum_{i=0}^n (-1)^{n-i} \binom{n}{i} A_i. \quad \text{\textbf{(二项式反演)}}
+\end{align*}
+
+
+\subsection{数学分析公式}
+\begin{align*}
+    & F(y) = \int_{a(y)}^{b(y)}{f(x,y)dx}, \\
+    & F'(y) = \int_{a(y)}^{b(y)}{f_y(x,y)dx} + f(b(y), y)b'(y) - f(a(y), y)a'(y).
+\end{align*}
+
+
+\subsection{Stern–Brocot Tree (用于枚举分数)}
+
+把所有正的既约分数(包括假分数)按照一定顺序塞入一个无限深度的满二叉排序树中, 即可得到 Stern–Brocot Tree.
+具体构造是通过定义数列及连分数来进行的, 在此不做展开, 只叙述一个在二叉树上搜索特定分数的方法.
+
+假定当前要找的分数是$a$, 初始化两个数$L = \frac{0}{1}$, $R = \frac{1}{0}$并重复以下步骤:
+\begin{enumerate}
+\item
+设$L=\frac{p_1}{q_1}$, $R=\frac{p_2}{q_2}$, 令$M=\frac{p_1+p_2}{q_1+q_2}$ ($M$不用约分, 事实上$M$已经是既约分数了).
+
+\item
+若$a=M$, 则此时已找到目标分数, 跳出循环.
+
+\item
+若$a<M$, 则令$R=M$, 重复步骤1.
+
+\item
+若$a>M$, 则令$L=M$, 重复步骤1.
+\end{enumerate}
+循环结束后, 每次生成的中间值$M$构成的序列, 就是在 Stern–Brocot Tree 上由根结点走到目标分数所在结点时所经过的一系列结点对应的值.
+应用时可以通过二分找拐点来加速.
+
+例题: kattis - Probe Droids (NAIPC 2018 F).
+
+
+\subsection{Pell方程}
+具有如下形式的方程称为 Pell 方程:
+\begin{gather*}
+    x^2 - n y^2 = 1,
+\end{gather*}
+其中$n \in \mathbb{N}$且\textbf{非完全平方数}.
+
+考虑$\sqrt{n}$的连分数逼近序列$\frac{h_i}{k_i}$, 在其中所有使$x=h_i$, $y=k_i$为Pell方程的解的分数中, 取\textbf{$h_i$最小的一组}记为$x_1=h_i$, $y_1=k_i$, 则$(x_1,y_1)$称为方程的基本解.
+进一步的, Pell方程的任意正整数解$(x_k,y_k)$满足:
+\begin{gather*}
+    x_k + y_k \sqrt{n} = (x_1+y_1 \sqrt{n})^k.
+\end{gather*}

@@ -1,0 +1,33 @@
+\chapter{图论}
+
+\def \codedir{./code/graph/}
+
+
+\section{Tarjan算法求强连通分量}
+\inputcode{\codecpp}{\codedir/tarjan.cpp}
+
+
+\section{最大流Dinic}
+\inputcode{\codecpp}{\codedir/dinic.cpp}
+
+
+\section{全局最小割(Stoer-Wagner algorithm}
+(我不会用orz)
+\inputcode{\codecpp}{\codedir/stoer_wagner.cpp}
+
+
+\section{有向图$k$短路}
+\inputcode{\codecpp}{\codedir/kth_path.cpp}
+
+
+\section{图论相关理论}
+
+\subsection{Hall定理}
+考虑二分图$G = \langle V_1, V_2, E \rangle$, 设$|V_1| \leq |V_2|$, 则$G$存在完美匹配当且仅当$V_1$中任意$k \ (k=1,2,\cdots,|V_1|)$个点至少与$V_2$中$k$个(不同的)顶点相邻.
+
+
+\subsection{平面图欧拉公式}
+设$V$是结点个数, $E$是边的数目, $F$是面(即所谓的联通区域, \textbf{包括外部无穷大平面})的个数, $C$是联通块个数, 则有如下公式:
+\begin{gather*}
+    V-E+F = C+1.
+\end{gather*}

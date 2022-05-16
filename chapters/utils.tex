@@ -1,0 +1,58 @@
+\chapter{各种科技}
+
+\def \codedir{./code/utils/}
+
+
+\section{Vim配置}
+\inputcode{\codevim}{\codedir/vimrc.vim}
+
+
+\section{头文件}
+\inputcode{\codevim}{\codedir/std.cpp}
+
+
+\section{C++ STL}
+\begin{itemize}
+\item
+\texttt{lower\_bound(first, last, val)}:
+返回\texttt{[first, last)}中第一个\texttt{>=val}的数的指针, 无解则返回\texttt{last}.
+
+\item
+\texttt{upper\_bound(first, last, val)}:
+返回\texttt{[first, last)}中第一个\texttt{>val}的数的指针, 无解则返回\texttt{last}.
+
+\item
+\texttt{map}和\texttt{set}自带\texttt{lower\_bound}/\texttt{upper\_bound}.
+
+\item
+\texttt{unique(first, last)}:
+\texttt{[first, last)}区间去重, 并返回去重后的末尾指针\texttt{last} (即去重后的数据存放在\texttt{first \textasciitilde last-1}).
+
+\item
+\texttt{bitset}的方法: \texttt{set(pos, val)}, \texttt{flip(pos)}, \texttt{reset()}, \texttt{count()}, \texttt{to\_string()}, \texttt{to\_ulong()}.
+
+\item
+\texttt{atan2(y,x)}:
+计算$\arctan(y/x)$在$(-\pi, \pi]$区间内对应的值(即计算向量$(x,y)$的方向所对应的弧度大小).
+\end{itemize}
+
+
+\section{\_\_int128解决爆long long}
+\inputcode{\codecpp}{\codedir/int128.cpp}
+
+
+\section{BUAA输入挂}
+\inputcode{\codecpp}{\codedir/fast_io.cpp}
+
+
+\section{Java基本输入输出}
+\inputcode{\codejava}{\codedir/standard_io.java}
+
+
+\section{Java高精度}
+
+\subsection{基本用法}
+\inputcode{\codejava}{\codedir/bignum.java}
+
+\subsection{BigDecimal使用例子}
+\inputcode{\codejava}{\codedir/bignum_example.java}

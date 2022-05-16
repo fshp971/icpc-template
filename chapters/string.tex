@@ -1,0 +1,74 @@
+\chapter{字符串}
+
+\def \codedir{./code/string/}
+
+
+\section{KMP算法}
+\inputcode{cpp}{\codedir/kmp.cpp}
+
+
+\section{Z-Function}
+\inputcode{cpp}{\codedir/z_function.cpp}
+
+
+\section{AC自动机}
+\inputcode{cpp}{\codedir/ac_automata.cpp}
+
+
+\section{后缀数组}
+
+\subsection{$O(n \log n)$后缀数组(时代的眼泪)}
+\inputcode{cpp}{\codedir/suffix_array.cpp}
+
+
+\subsection{SA-IS算法$O(n)$构建后缀数组}
+\inputcode{cpp}{\codedir/sais.cpp}
+
+
+\subsection{后缀数组的小结论}
+设$P$是一个长度为$n$的后缀数组, $R$为其对应的Rank数组, 设$R[n+1]=0$.
+现定义数组$R_+[i]=R[P[i]+1] \ (1 \leq i \leq n)$, 同时定义集合
+$U = \{i \ | \ i \in [1,n-1], R_+[i]>R_+[i+1]\}$.
+最后令$d=|U|$, 设字符集大小为$\sigma$.
+那么我们有如下结论:
+\begin{itemize}
+\item
+长度为$n$且对应的后缀数组为$P$的所有字符串的个数为$\binom{n+\sigma-d-1}{\sigma-d-1}$.
+若$d>\sigma-1$, 则这样的字符串不存在.
+
+\item
+长度为$n$且对应的后缀数组为$P$的所有字符串中, 满足恰由$k \ (k \leq \sigma)$种不同的字符组成的字符串的个数为$\binom{n-d-1}{k-d-1}$.
+若$d>k-1$, 则这样的字符串不存在.
+\end{itemize}
+
+
+\section{后缀自动机(SAM)}
+\inputcode{cpp}{\codedir/sam.cpp}
+
+
+\section{广义后缀自动机(Trie上建SAM)}
+\textbf{例题.}
+BZOJ-3926: [ZJOI2015]诸神眷顾的幻想乡
+
+给一棵字母树, 计算树上本质不同字符串的个数(同一段点列, 正着走和反着走可能会产生不一样的串), 保证叶结点不超过$20$个。
+
+\textbf{题解.}
+从每一个叶结点分别dfs一遍子母树,建立一个$l \cdot c \cdot n$规模的干义后缀自动机($l$为叶结点个数, $c$为字符集大小, $n$为树的结点个数), 然后统计本质不同的字符串, 总时间复杂度是线性的.
+详细构造代码如下:
+\inputcode{cpp}{\codedir/sam_extend.cpp}
+
+
+\section{回文自动机}
+\inputcode{cpp}{\codedir/palindromic_tree.cpp}
+
+
+\section{Shift-And字符串匹配}
+\textbf{例题.}
+HDOJ-6190: Matching in a Tree
+
+给一棵动态构造的字典树, 又给一个字符不确定的字符串, 再给一些询问查询该串的在一定⻓度范围内的字串是否在字典树中某个指定的前缀中作为字串出现过.
+
+\textbf{题解.}
+注意到给定的字符串很短, 因此可以用bitset加速, 通过Shift-And来处理这种字符不确定的模式匹配问题.
+
+\inputcode{cpp}{\codedir/shift_and.cpp}

@@ -1,0 +1,67 @@
+\chapter{计算几何}
+
+\def \codedir{./code/geometry/}
+
+
+\section{几何定理}
+
+\subsection{正弦定理\&余弦定理}
+设有三角形$ABC$, 其中$\angle A$, $\angle B$, $\angle C$的弧度分别为$\alpha$, $\beta$, $\gamma$, 对应的对边边⻓分别为 $|BC|=a$, $|AC|=b$, $|AB|=c$.
+设该三角形的外接圆半径为$R$.
+那么我们有如下定理:
+\begin{itemize}
+\item 正弦定理
+\begin{gather*}
+    \frac{a}{\sin \alpha} = \frac{b}{\sin \beta} = \frac{c}{\sin \gamma} = 2R.
+\end{gather*}
+
+\item 余弦定理
+\begin{gather*}
+    \left\{\begin{array}{l}
+        a^2 = b^2 + c^2 - 2bc\cos\alpha \\
+        b^2 = a^2 + c^2 - 2ac\cos\beta \\
+        c^2 = a^2 + b^2 - 2ab\cos\gamma
+    \end{array}\right. .
+\end{gather*}
+\end{itemize}
+
+
+\subsection{海伦公式}
+设三角形的三边⻓分别为$a$, $b$, $c$.
+则对三角形的面积$S$有如下公式:
+\begin{gather*}
+    S = \sqrt{p(p-a)(p-b)(p-c)},
+\end{gather*}
+其中$p = \frac{1}{2}(a+b+c)$.
+
+
+\section{一些基础函数以及Point类}
+\inputcode{\codecpp}{\codedir/point.cpp}
+
+
+\section{三角形外心\&点的最小圆覆盖}
+\inputcode{\codecpp}{\codedir/functional.cpp}
+
+
+\section{直线交点\&线段交点}
+\inputcode{\codecpp}{\codedir/intersection.cpp}
+
+
+\section{几何坑点}
+\begin{itemize}
+\item
+在使用反三角函数\texttt{acos()}, \texttt{asin()}时一定要检查输入值是否在函数值域($[-1,1]$)内.
+
+\item
+对于输出答案为\texttt{0}的数, 一定要手动判\texttt{0}, 否则可能会输出``\texttt{-0}''导致PE或WA。
+
+\item
+尽可能减少Sqrt或除法的使用以提高精度.
+
+\item
+浮点数应\texttt{typedef}一个\texttt{DB}类型, 这样可以方便在卡精度时切换\texttt{long double}.
+
+\item
+对于需要控制相对误差(而不是绝对误差)的题, 二分/三分时应手动限制查找次数而不是使用\texttt{while(r-l>eps)}, 否则可能由于数值太大引起精度丢失, 最终陷入死循环(cf-1059D).
+事实上, 若答案数值过大都应手动限制查找次数.
+\end{itemize}

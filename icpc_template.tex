@@ -1,0 +1,61 @@
+\documentclass[twoside,openright]{book}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xeCJK}
+\usepackage{fontspec}
+% \usepackage{color}
+
+\usepackage{comp}
+
+
+%%%%%%%%%%%%%%%%
+% set sans font
+%%%%%%%%%%%%%%%%
+\setCJKsansfont[BoldFont={Source Han Sans}]{Source Han Sans Light}
+\setsansfont[BoldFont={Noto Sans}]{Noto Sans Light}
+
+
+%%%%%%%%%%%%%%%%
+% set sans font as the main font
+%%%%%%%%%%%%%%%%
+\renewcommand{\familydefault}{\sfdefault}
+
+
+%%%%%%%%%%%%%%%%
+% set code font
+%%%%%%%%%%%%%%%%
+\setCJKmonofont{Noto Sans Mono CJK SC}
+\setmonofont{Noto Sans Mono}
+
+
+\title{fshp971 \\ ICPC常用算法模板}
+\headtitle{ICPC Algorithm Template}
+\author{fshp971}
+\affiliation{}
+\date{2018-10}
+
+
+%%%%%%%%%%%%%%%%
+% set cover figures
+%%%%%%%%%%%%%%%%
+\compuppercoverfig{figures/icpc_logo.png}
+\complowercoverfig{figures/pigeon.jpg}
+
+
+\begin{document}
+
+\makecomptitle
+
+\maketoc
+
+
+\include{chapters/math}
+\include{chapters/string}
+\include{chapters/graph}
+\include{chapters/data_structure}
+\include{chapters/geometry}
+\include{chapters/utils}
+
+
+\end{document}

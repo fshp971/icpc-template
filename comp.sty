@@ -1,0 +1,122 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{comp}[2022/02/04 v0.1 ICPC Template Style File by fshp971]
+
+\RequirePackage{hyperref}
+\RequirePackage{tocbibind}
+\RequirePackage{graphicx}
+\RequirePackage{geometry}
+\RequirePackage{fancyhdr} 
+\RequirePackage{titlesec}
+\RequirePackage{xcolor}
+\RequirePackage[cache=false]{minted}
+
+
+
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{40pt}
+
+
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\renewcommand{\baselinestretch}{1.2}
+
+
+%%%%%%%%%%%%%%%%
+% set the header/footer
+%%%%%%%%%%%%%%%%
+\fancyhf{}
+\pagestyle{fancy}
+\fancyheadoffset[L,R]{0cm}
+\fancyhead[RE,LO]{\@author}
+\fancyhead[RO,LE]{\leftmark}
+\fancyhead[C]{\@headtitle}
+\fancyfoot[C]{\thepage}
+
+
+%%%%%%%%%%%%%%%%
+% set the cover of book
+%%%%%%%%%%%%%%%%
+\newcommand{\headtitle}[1]{ \def\@headtitle{#1} }
+\newcommand{\affiliation}[1]{ \def\@affiliation{#1} }
+\newcommand{\compuppercoverfig}[1]{ \def\@compuppercoverfig{#1} }
+\newcommand{\complowercoverfig}[1]{ \def\@complowercoverfig{#1} }
+
+\newcommand{\makecomptitle}{
+\ifdefined \@title
+\newgeometry{left=3cm, right=3cm, tmargin=3cm, textheight=25cm}
+\begin{center}
+    \pagestyle{empty}
+
+    \ifdefined \@compuppercoverfig
+        \includegraphics[height=8.5cm]{\@compuppercoverfig}
+        \global \let\@compuppercoverfig\undefined
+    \fi
+
+    \vspace{1.3cm}
+
+    \Huge \textbf{\@title}
+
+    \vspace{1.3cm}
+
+    \ifdefined \@complowercoverfig
+        \includegraphics[height=7cm]{\@complowercoverfig}
+        \global \let\@complowercoverfig\undefined
+    \fi
+
+    \vspace{1.3cm}
+
+    \LARGE \textbf{\@affiliation} 
+
+    \LARGE \textbf{\@date}
+
+    \newpage
+    \phantom{blank}
+    \newpage
+    \setcounter{page}{1}
+    \global \let\@title\undefined
+\end{center}
+\restoregeometry
+\fi
+}
+
+
+%%%%%%%%%%%%%%%%
+% set table of contents
+%%%%%%%%%%%%%%%%
+\hypersetup{bookmarksopen=true}
+\hypersetup{bookmarksopenlevel=1}
+\newcommand{\maketoc}{
+    \pagenumbering{Roman}
+    \tableofcontents
+    \newpage
+    \ifodd \c@page \else
+        \thispagestyle{empty}
+        ~\newpage
+    \fi
+    \setcounter{page}{1}
+    \pagenumbering{arabic}
+}
+
+
+%%%%%%%%%%%%%%%%
+% set code highlight
+% example:
+%     \inputcode{\codecpp}{test.cpp}
+%%%%%%%%%%%%%%%%
+\setminted{
+    fontsize=\footnotesize,
+    xleftmargin=0.8cm,
+    linenos,
+    baselinestretch=1,
+    % style=manni,
+}
+
+\renewcommand{\theFancyVerbLine}{\footnotesize\arabic{FancyVerbLine}}
+\newcommand{\inputcode}[2]{\inputminted{#1}{#2}}
+
+\def\codecpp{cpp}
+\def\codejava{java}
+\def\codepy{python}
+\def\codevim{vim}
